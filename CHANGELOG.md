@@ -2,13 +2,17 @@
 
 All notable changes to the **Error Mommy Sound Extension** will be documented in this file.
 
-## [0.1.2]
+## [0.1.3]
 
 ### Added
 - Anti-spam cooldown period (`mommyErrorAsmr.cooldownSeconds`, default: 5s) to prevent overlapping audio and echo effects when errors are spammed.
 - Configurable Fish Audio TTS model dropdown (`mommyErrorAsmr.ttsModel`): `s2.1-pro-free` (default), `s2-pro`, `s2.1-pro`, and `s1`.
 - Pre-configured default voice model ID (`60bd8f0f5bbc462a8fa1686dd81af336`), so users only need to provide their API Key.
 - Direct shortcut to generate Fish Audio API key (`https://fish.audio/app/api-keys/`).
+
+## [0.1.2]
+
+### Added
 - Status bar indicator `$(heart) Mommy ASMR` with one-click toggle.
 
 ### Fixed

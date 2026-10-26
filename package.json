@@ -2,7 +2,7 @@
   "name": "mommy-error-asmr",
   "displayName": "Error Mommy Sound Extension",
   "description": "Plays soothing mommy ASMR voice when your code fails — powered by Fish Audio TTS",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "raditted",
   "license": "MIT",
   "icon": "media/icon.png",
