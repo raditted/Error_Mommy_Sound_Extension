@@ -1,0 +1,11 @@
+.vscode/**
+.env*
+src/**
+test_*/**
+test_api/**
+test_java/**
+tsconfig.json
+node_modules/**
+dist/**/*.map
+!dist/**
+!media/**
