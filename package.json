@@ -1,0 +1,132 @@
+{
+  "name": "mommy-error-asmr",
+  "displayName": "Error Mommy Sound Extension",
+  "description": "Plays soothing mommy ASMR voice when your code fails — powered by Fish Audio TTS",
+  "version": "0.1.0",
+  "publisher": "raditted",
+  "license": "MIT",
+  "icon": "media/mommy-default.jpg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raditted/mommy-error-asmr"
+  },
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "error",
+    "sound",
+    "asmr",
+    "tts",
+    "fish-audio",
+    "mommy",
+    "voice",
+    "funny"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mommyErrorAsmr",
+          "title": "Mommy ASMR",
+          "icon": "media/icon-activitybar.svg"
+        }
+      ]
+    },
+    "views": {
+      "mommyErrorAsmr": [
+        {
+          "type": "webview",
+          "id": "mommyErrorAsmr.sidebarView",
+          "name": "Mommy Says...",
+          "icon": "media/icon-activitybar.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "mommyErrorAsmr.toggle",
+        "title": "Mommy ASMR: Toggle Sound On/Off"
+      },
+      {
+        "command": "mommyErrorAsmr.testSound",
+        "title": "Mommy ASMR: Test Sound"
+      },
+      {
+        "command": "mommyErrorAsmr.clearCache",
+        "title": "Mommy ASMR: Clear Audio Cache"
+      }
+    ],
+    "configuration": {
+      "title": "Error Mommy Sound Extension",
+      "properties": {
+        "mommyErrorAsmr.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable mommy error sounds"
+        },
+        "mommyErrorAsmr.fishAudioApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your Fish Audio API key (get one at fish.audio)"
+        },
+        "mommyErrorAsmr.fishAudioModelId": {
+          "type": "string",
+          "default": "",
+          "description": "Fish Audio voice model ID for the mommy voice"
+        },
+        "mommyErrorAsmr.triggerSource": {
+          "type": "string",
+          "default": "all",
+          "enum": [
+            "notebook",
+            "task",
+            "terminal",
+            "all"
+          ],
+          "enumDescriptions": [
+            "Only trigger on notebook cell execution errors",
+            "Only trigger on build task failures",
+            "Only trigger on terminal output errors (e.g. python, java, javac)",
+            "Trigger on all error sources"
+          ],
+          "description": "Which execution errors should trigger the sound"
+        },
+        "mommyErrorAsmr.characterImage": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a custom character image (e.g. /home/user/Pictures/mommy.png, ~/Pictures/mommy.png, or C:\\Users\\user\\Pictures\\mommy.png). Leave empty for default."
+        },
+        "mommyErrorAsmr.showImage": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show character image panel when error occurs"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "watch": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
+    "package": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "lint": "eslint src",
+    "test": "node ./dist/test/runTest.js",
+    "vsce:package": "vsce package --no-dependencies",
+    "vsce:publish": "vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}
