@@ -6,6 +6,7 @@ All notable changes to the **Error Mommy Sound Extension** will be documented in
 
 ### Changed
 - Updated extension marketplace icon to pixel heart.
+- Corrected GitHub repository and issue tracker URLs.
 
 ## [0.1.0]
 
