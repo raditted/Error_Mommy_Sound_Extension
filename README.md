@@ -15,38 +15,40 @@ Error Mommy Sound Extension is a VS Code extension that reads your errors out lo
 ## Getting started
 
 1. Install the extension from the VS Code Marketplace.
-2. Create an API key at [fish.audio](https://fish.audio/).
-3. Pick a voice at [fish.audio/discover](https://fish.audio/discover) and copy its model ID.
-4. Open **Settings**, search for `mommyErrorAsmr`, and fill in **API Key** and **Model ID**.
-5. Run the **Mommy ASMR: Test Sound** command to confirm everything works.
+2. Create an API key at [fish.audio/app/api-keys/](https://fish.audio/app/api-keys/).
+3. Open **Settings**, search for `mommyErrorAsmr`, and paste your **API Key**.
+   - The **Model ID** is already filled in with the default mommy voice (`60bd8f0f5bbc462a8fa1686dd81af336`).
+   - If you want a different voice, browse [fish.audio/app/discovery](https://fish.audio/app/discovery) and copy any model ID you like.
+4. Run the **Mommy ASMR: Test Sound** command to confirm everything works.
 
 > [!TIP]
-> Not sure which voice to use? Try a few model IDs with **Test Sound** before committing to one.
+> The default voice model ID is `60bd8f0f5bbc462a8fa1686dd81af336`. You can change it anytime in settings to any model from [fish.audio/app/discovery](https://fish.audio/app/discovery).
 
 > [!NOTE]
 > Each new voice line calls the Fish Audio API and uses your credits. Lines that were already generated are served from the local cache at no cost.
 
 ## Error sources
 
-| Source | Catches | Requirements |
-| --- | --- | --- |
-| `notebook` | Failed Jupyter and notebook cell executions | None |
-| `task` | Build, compile, Java, and Python tasks that exit with a non-zero code | None |
-| `terminal` | Python and Java errors (syntax, exceptions, tracebacks) in the integrated terminal | VS Code 1.93+ (shell integration) |
+| Source     | Catches                                                                                                | Requirements                      |
+| ---------- | ------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| `notebook` | Failed Jupyter and notebook cell executions                                                            | None                              |
+| `task`     | Build, compile, Java, and Python tasks that exit with a non-zero code                                  | None                              |
+| `terminal` | Python and Java errors (syntax, exceptions, tracebacks) in the integrated terminal                     | VS Code 1.93+ (shell integration) |
+| `debug`    | Debug and run sessions (F5, Run Java, Debug Python) that hit unhandled exceptions or exit with errors  | None                              |
 
 > [!IMPORTANT]
-> Terminal detection depends on VS Code shell integration, which requires VS Code 1.93 or newer. On older versions, use the `task` or `notebook` sources.
+> Terminal detection depends on VS Code shell integration, which requires VS Code 1.93 or newer. On older versions, use the `task`, `debug`, or `notebook` sources.
 
 ## Settings
 
-| Setting | Description | Default |
-| --- | --- | --- |
-| `mommyErrorAsmr.enabled` | Turn the extension on or off | `true` |
-| `mommyErrorAsmr.fishAudioApiKey` | Your Fish Audio API key | `""` |
-| `mommyErrorAsmr.fishAudioModelId` | Voice model ID | `""` |
-| `mommyErrorAsmr.triggerSource` | Which sources to listen to: `notebook`, `task`, `terminal`, or `all` | `"all"` |
-| `mommyErrorAsmr.characterImage` | Path to a custom character image | `""` (bundled default) |
-| `mommyErrorAsmr.showImage` | Show the sidebar panel when an error occurs | `true` |
+| Setting                           | Description                                                                   | Default                                |
+| --------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------- |
+| `mommyErrorAsmr.enabled`          | Turn the extension on or off                                                  | `true`                                 |
+| `mommyErrorAsmr.fishAudioApiKey`  | Your Fish Audio API key ([create one here](https://fish.audio/app/api-keys/))  | `""`                                   |
+| `mommyErrorAsmr.fishAudioModelId` | Voice model ID                                                                | `"60bd8f0f5bbc462a8fa1686dd81af336"`  |
+| `mommyErrorAsmr.triggerSource`    | Which sources to listen to: `notebook`, `task`, `terminal`, `debug`, or `all` | `"all"`                                |
+| `mommyErrorAsmr.characterImage`   | Path to a custom character image                                              | `""` (bundled default)                 |
+| `mommyErrorAsmr.showImage`        | Show the sidebar panel when an error occurs                                   | `true`                                 |
 
 > [!WARNING]
 > Your API key is stored in your VS Code settings. Do not commit `settings.json` or share it publicly if it contains the key.
@@ -56,6 +58,7 @@ Error Mommy Sound Extension is a VS Code extension that reads your errors out lo
 You can display your own character art in the sidebar panel by setting `mommyErrorAsmr.characterImage`. Supported formats include `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, and `.svg`.
 
 Examples:
+
 - **Linux**: `/home/username/Pictures/mommy.png` or `~/Pictures/mommy.png`
 - **macOS**: `/Users/username/Pictures/mommy.png` or `~/Pictures/mommy.png`
 - **Windows**: `C:\Users\username\Pictures\mommy.png`
@@ -65,11 +68,11 @@ Leave this setting empty to use the default bundled illustration.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| `Mommy ASMR: Toggle Sound On/Off` | Enable or disable voice feedback |
-| `Mommy ASMR: Test Sound` | Play a random message to verify your setup |
-| `Mommy ASMR: Clear Audio Cache` | Delete all cached audio files |
+| Command                           | Description                                |
+| --------------------------------- | ------------------------------------------ |
+| `Mommy ASMR: Toggle Sound On/Off` | Enable or disable voice feedback           |
+| `Mommy ASMR: Test Sound`          | Play a random message to verify your setup |
+| `Mommy ASMR: Clear Audio Cache`   | Delete all cached audio files              |
 
 > [!CAUTION]
 > Clearing the cache removes every saved clip. Any line you hear again will be regenerated through the API and use credits.

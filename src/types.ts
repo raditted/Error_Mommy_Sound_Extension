@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { DEFAULT_MODEL_ID } from './constants';
 
 // Error categories
 
@@ -65,7 +66,9 @@ export function getExtensionSettings(): ExtensionSettings {
   return {
     enabled: config.get<boolean>('enabled', true),
     fishAudioApiKey: config.get<string>('fishAudioApiKey', ''),
-    fishAudioModelId: config.get<string>('fishAudioModelId', ''),
+    fishAudioModelId:
+      config.get<string>('fishAudioModelId', DEFAULT_MODEL_ID) ||
+      DEFAULT_MODEL_ID,
     triggerSource: config.get<TriggerSource>('triggerSource', 'all'),
     characterImage: config.get<string>('characterImage', ''),
     showImage: config.get<boolean>('showImage', true),

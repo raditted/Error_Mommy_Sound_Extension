@@ -8,6 +8,7 @@ import { playAudioFile, stopCurrentAudio } from './audioPlayer';
 import { CacheManager } from './cacheManager';
 import { MommySidebarProvider } from './webviewPanel';
 import { ExecutionListener } from './executionListener';
+import { DEFAULT_MODEL_ID } from './constants';
 
 // Helpers
 
@@ -148,18 +149,23 @@ export async function activate(
 
     // Validate credentials.
     const apiKey = settings.fishAudioApiKey;
-    const modelId = settings.fishAudioModelId;
+    const modelId = settings.fishAudioModelId || DEFAULT_MODEL_ID;
 
-    if (!apiKey || !modelId) {
-      log('Fish Audio API Key or Model ID is missing in settings.');
+    if (!apiKey) {
+      log('Fish Audio API Key is missing in settings.');
       const choice = await vscode.window.showWarningMessage(
-        'Mommy Error ASMR: Please set your Fish Audio API Key and Model ID in Settings.',
+        'Mommy Error ASMR: Please set your Fish Audio API Key in Settings.',
         'Open Settings',
+        'Get API Key',
       );
       if (choice === 'Open Settings') {
         vscode.commands.executeCommand(
           'workbench.action.openSettings',
-          'mommyErrorAsmr',
+          'mommyErrorAsmr.fishAudioApiKey',
+        );
+      } else if (choice === 'Get API Key') {
+        vscode.env.openExternal(
+          vscode.Uri.parse('https://fish.audio/app/api-keys/'),
         );
       }
       return;
@@ -222,7 +228,7 @@ export async function activate(
       config.update('enabled', !current, vscode.ConfigurationTarget.Global);
       updateStatusBar();
       vscode.window.showInformationMessage(
-        `Mommy Error ASMR is now ${!current ? 'active 💕' : 'disabled 💔'}`,
+        `Mommy Error ASMR is now ${!current ? 'active' : 'disabled'}`,
       );
     }),
 
@@ -242,7 +248,7 @@ export async function activate(
       await cacheManager.clear();
       log('Cache cleared.');
       vscode.window.showInformationMessage(
-        'Mommy Error ASMR: Audio cache cleared! 🧹',
+        'Mommy Error ASMR: Audio cache cleared!',
       );
     }),
 
@@ -257,10 +263,10 @@ export async function activate(
     vscode.window
       .showWarningMessage(
         'Mommy Error ASMR is currently disabled in your settings.',
-        'Enable Now 💕',
+        'Enable Now',
       )
       .then((selection) => {
-        if (selection === 'Enable Now 💕') {
+        if (selection === 'Enable Now') {
           vscode.workspace
             .getConfiguration('mommyErrorAsmr')
             .update('enabled', true, vscode.ConfigurationTarget.Global);
@@ -268,8 +274,8 @@ export async function activate(
         }
       });
   } else {
-    log('Mommy Error ASMR is active! 💕');
-    vscode.window.showInformationMessage('Mommy Error ASMR is active! 💕');
+    log('Mommy Error ASMR is active!');
+    vscode.window.showInformationMessage('Mommy Error ASMR is active!');
   }
 }
 

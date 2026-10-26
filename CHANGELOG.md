@@ -4,6 +4,11 @@ All notable changes to the **Error Mommy Sound Extension** will be documented in
 
 ## [0.1.2]
 
+### Added
+- Pre-configured default voice model ID (`60bd8f0f5bbc462a8fa1686dd81af336`), so users only need to provide their API Key.
+- Direct shortcut to generate Fish Audio API key (`https://fish.audio/app/api-keys/`).
+- Status bar indicator `$(heart) Mommy ASMR` with one-click toggle.
+
 ### Fixed
 - Fixed race condition in terminal shell execution stream where output was read before stream flush completed.
 - Added Debug Adapter Protocol (DAP) tracker (`vscode.debug.registerDebugAdapterTrackerFactory`) to reliably detect errors and unhandled exceptions when running or debugging code via F5, "Run Java", "Debug Python File", or CodeLens.
