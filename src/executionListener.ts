@@ -77,7 +77,7 @@ function formatJsonError(json: {
 // Python error detection
 
 /**
- * Patterns that indicate the terminal output contains a Python error or traceback.
+ * Patterns that indicate the terminal or debug output contains a Python error or traceback.
  */
 const PYTHON_ERROR_PATTERNS: readonly RegExp[] = [
   /Traceback \(most recent call last\):/i,
@@ -86,15 +86,15 @@ const PYTHON_ERROR_PATTERNS: readonly RegExp[] = [
 ];
 
 /** Returns `true` if the text looks like it contains a Python error. */
-function containsPythonError(text: string): boolean {
+export function containsPythonError(text: string): boolean {
   return PYTHON_ERROR_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 /**
- * Extract only the relevant error lines from Python terminal output.
+ * Extract only the relevant error lines from Python terminal or debug output.
  * Captures the traceback header, file locations, code snippets, pointers, and exception message.
  */
-function extractPythonErrorText(text: string): string {
+export function extractPythonErrorText(text: string): string {
   const lines = text.split('\n');
   const errorLines: string[] = [];
   let inTraceback = false;
@@ -119,12 +119,15 @@ function extractPythonErrorText(text: string): string {
       continue;
     }
 
+    // Direct standalone exception line
+    if (/^[A-Za-z]+(?:Error|Exception):\s*/.test(trimmed)) {
+      errorLines.push(trimmed);
+      inTraceback = false;
+      continue;
+    }
+
     if (inTraceback) {
       errorLines.push(trimmed);
-      // Exception line marks the end of a traceback
-      if (/^[A-Za-z]+(?:Error|Exception):\s*/.test(trimmed)) {
-        inTraceback = false;
-      }
     }
   }
 
@@ -144,7 +147,7 @@ function extractPythonErrorText(text: string): string {
 // Java error detection
 
 /**
- * Patterns that indicate the terminal output contains a Java error.
+ * Patterns that indicate the terminal or debug output contains a Java error.
  * Includes `javac` compilation errors, runtime exceptions, and stack traces.
  */
 const JAVA_ERROR_PATTERNS: readonly RegExp[] = [
@@ -156,7 +159,7 @@ const JAVA_ERROR_PATTERNS: readonly RegExp[] = [
 ];
 
 /** Returns `true` if the text looks like it contains a Java error. */
-function containsJavaError(text: string): boolean {
+export function containsJavaError(text: string): boolean {
   return JAVA_ERROR_PATTERNS.some((pattern) => pattern.test(text));
 }
 
@@ -164,7 +167,7 @@ function containsJavaError(text: string): boolean {
  * Extract only the relevant error lines from Java compiler / runtime output,
  * filtering out noise and limiting stack-trace depth.
  */
-function extractJavaErrorText(text: string): string {
+export function extractJavaErrorText(text: string): string {
   const lines = text.split('\n');
   const errorLines: string[] = [];
 
@@ -209,7 +212,7 @@ function extractJavaErrorText(text: string): string {
 // General error fallback
 
 /** Extract last non-empty lines from failed command output */
-function extractGeneralErrorText(text: string): string {
+export function extractGeneralErrorText(text: string): string {
   const lines = text
     .split('\n')
     .map((l) => l.trim())
@@ -273,15 +276,120 @@ function collectDiagnosticErrors(): string {
   return messages.join('\n');
 }
 
+// Active terminal execution tracker
+
+interface ActiveTerminalExecution {
+  chunks: string[];
+  readPromise: Promise<void>;
+  commandLine?: string;
+}
+
+// Debug Adapter Tracker for Run/Debug sessions (e.g. Run Java, Debug Python, F5)
+
+class MommyDebugTracker implements vscode.DebugAdapterTracker {
+  private outputBuffer: string[] = [];
+  private exceptionText = '';
+  private exitCode: number | undefined;
+  private hasReported = false;
+
+  constructor(
+    private readonly session: vscode.DebugSession,
+    private readonly onDetectedError: ErrorCallback,
+    private readonly log: (msg: string) => void,
+  ) {}
+
+  onDidSendMessage(message: any): void {
+    if (!message || message.type !== 'event') {
+      return;
+    }
+
+    if (message.event === 'output' && message.body) {
+      const output = message.body.output;
+      if (typeof output === 'string') {
+        this.outputBuffer.push(output);
+      }
+    }
+
+    if (message.event === 'stopped' && message.body?.reason === 'exception') {
+      this.exceptionText =
+        message.body.text || message.body.description || 'Exception occurred';
+      this.log(`[Debug] Exception stopped in "${this.session.name}": ${this.exceptionText}`);
+    }
+  }
+
+  onError(error: Error): void {
+    this.log(`[Debug] Adapter error in "${this.session.name}": ${error.message}`);
+    this.handleSessionEnd(1, error.message);
+  }
+
+  onExit(code?: number): void {
+    this.exitCode = code;
+    this.handleSessionEnd(code);
+  }
+
+  onWillStopSession(): void {
+    this.handleSessionEnd();
+  }
+
+  public handleSessionEnd(code?: number, overrideError?: string): void {
+    if (this.hasReported) {
+      return;
+    }
+
+    const effectiveCode = code ?? this.exitCode;
+    const fullOutput = stripAnsi(this.outputBuffer.join(''));
+    const hasPython = containsPythonError(fullOutput);
+    const hasJava = containsJavaError(fullOutput);
+    const hasException = Boolean(this.exceptionText);
+    const isErrorExit = effectiveCode !== undefined && effectiveCode !== 0;
+
+    if (!hasPython && !hasJava && !hasException && !isErrorExit && !overrideError) {
+      return;
+    }
+
+    this.hasReported = true;
+
+    let errorText = '';
+    if (hasPython) {
+      errorText = extractPythonErrorText(fullOutput);
+    } else if (hasJava) {
+      errorText = extractJavaErrorText(fullOutput);
+    } else if (hasException) {
+      errorText = this.exceptionText;
+      if (fullOutput) {
+        errorText += '\n' + fullOutput.slice(0, 500);
+      }
+    } else if (overrideError) {
+      errorText = overrideError;
+    } else if (isErrorExit) {
+      errorText = extractGeneralErrorText(fullOutput) || `Process exited with code ${effectiveCode}`;
+    }
+
+    if (errorText.trim()) {
+      this.log(
+        `[Debug] Detected error in session "${this.session.name}": ${errorText.slice(0, 80).replace(/\n/g, ' ')}`,
+      );
+      this.onDetectedError({
+        source: 'debug',
+        errorText: errorText.trim(),
+        fileName:
+          this.session.configuration.program ||
+          this.session.configuration.mainClass,
+      });
+    }
+  }
+}
+
 // ExecutionListener
 
 /**
- * Listens to three VS Code event sources and forwards detected errors
+ * Listens to VS Code event sources and forwards detected errors
  * to the provided callback:
  *
  * 1. **Notebook cells** — `onDidChangeNotebookDocument`
  * 2. **Build / run tasks** — `onDidEndTaskProcess`
  * 3. **Terminal shell commands** — shell-integration API (VS Code ≥ 1.93)
+ * 4. **Debug / run sessions** — `registerDebugAdapterTrackerFactory` (covers Run Java, Debug Python, F5)
  */
 export class ExecutionListener implements vscode.Disposable {
   private disposables: vscode.Disposable[] = [];
@@ -289,22 +397,39 @@ export class ExecutionListener implements vscode.Disposable {
   /** Tracks the last seen execution order per cell URI to avoid duplicates. */
   private lastSeenExecOrder = new Map<string, number>();
 
-  /** Accumulates terminal output per shell execution. */
-  private executionOutputs = new Map<vscode.TerminalShellExecution, string>();
+  /** Active terminal executions mapping each execution to its chunks and reading promise. */
+  private activeTerminalExecutions = new Map<vscode.TerminalShellExecution, ActiveTerminalExecution>();
 
-  constructor(private readonly onError: ErrorCallback) {}
+  /** Active debug trackers mapped by session ID. */
+  private activeDebugTrackers = new Map<string, MommyDebugTracker>();
+
+  constructor(
+    private readonly onError: ErrorCallback,
+    private readonly logger?: (msg: string) => void,
+  ) {}
+
+  private log(msg: string): void {
+    if (this.logger) {
+      this.logger(msg);
+    } else {
+      console.log(`[Mommy ASMR] ${msg}`);
+    }
+  }
 
   // Lifecycle
 
-  /** Start listening on all three event sources. */
+  /** Start listening on all event sources. */
   public activate(): void {
     this.listenToNotebooks();
     this.listenToTasks();
     this.listenToTerminal();
+    this.listenToDebugSessions();
+    this.log('ExecutionListener activated (notebooks, tasks, terminal, debug sessions).');
   }
 
   public dispose(): void {
-    this.executionOutputs.clear();
+    this.activeTerminalExecutions.clear();
+    this.activeDebugTrackers.clear();
     for (const d of this.disposables) {
       d.dispose();
     }
@@ -349,9 +474,12 @@ export class ExecutionListener implements vscode.Disposable {
       }
     }
 
+    const errorText = cleanNotebookErrorText(rawText) || 'Unknown Notebook Error';
+    this.log(`[Notebook] Detected error in cell: ${errorText.slice(0, 80).replace(/\n/g, ' ')}`);
+
     this.onError({
       source: 'notebook',
-      errorText: cleanNotebookErrorText(rawText) || 'Unknown Notebook Error',
+      errorText,
       fileName: cell.document.uri.fsPath,
     });
   }
@@ -372,6 +500,8 @@ export class ExecutionListener implements vscode.Disposable {
           collectDiagnosticErrors() ||
           `Task '${e.execution.task.name}' failed with exit code ${e.exitCode}`;
 
+        this.log(`[Task] Task "${e.execution.task.name}" failed: ${errorText.slice(0, 80).replace(/\n/g, ' ')}`);
+
         this.onError({ source: 'task', errorText });
       }),
     );
@@ -380,55 +510,120 @@ export class ExecutionListener implements vscode.Disposable {
   // Terminal (shell integration)
 
   private listenToTerminal(): void {
+    // Notify when terminal shell integration is established
+    this.disposables.push(
+      vscode.window.onDidChangeTerminalShellIntegration((e) => {
+        this.log(`[Terminal] Shell integration active for terminal "${e.terminal.name}"`);
+      }),
+    );
+
     // Capture output when a command starts.
     this.disposables.push(
-      vscode.window.onDidStartTerminalShellExecution(async (e) => {
-        let output = '';
-        try {
-          for await (const data of e.execution.read()) {
-            output += data;
+      vscode.window.onDidStartTerminalShellExecution((e) => {
+        const active: ActiveTerminalExecution = {
+          chunks: [],
+          readPromise: Promise.resolve(),
+          commandLine: e.execution.commandLine?.value,
+        };
+
+        this.log(`[Terminal] Started command: ${active.commandLine || '(unknown command)'}`);
+
+        // Continuously buffer stream data as it arrives
+        active.readPromise = (async () => {
+          try {
+            for await (const data of e.execution.read()) {
+              active.chunks.push(data);
+            }
+          } catch (err) {
+            // Stream may close or fail for some terminal configurations
           }
-        } catch {
-          // Stream may fail for some terminal types.
-        }
-        this.executionOutputs.set(e.execution, output);
+        })();
+
+        this.activeTerminalExecutions.set(e.execution, active);
       }),
     );
 
     // Check for errors when the command ends.
     this.disposables.push(
-      vscode.window.onDidEndTerminalShellExecution((e) => {
-        const rawOutput = this.executionOutputs.get(e.execution) || '';
-        this.executionOutputs.delete(e.execution);
+      vscode.window.onDidEndTerminalShellExecution(async (e) => {
+        const active = this.activeTerminalExecutions.get(e.execution);
+        let rawOutput = '';
 
-        const hasPython = containsPythonError(rawOutput);
-        const hasJava = containsJavaError(rawOutput);
+        if (active) {
+          // Wait for stream to finish draining (capped at 600ms)
+          await Promise.race([
+            active.readPromise,
+            new Promise((resolve) => setTimeout(resolve, 600)),
+          ]);
+          rawOutput = active.chunks.join('');
+          this.activeTerminalExecutions.delete(e.execution);
+        }
+
+        const cmd = active?.commandLine || '';
+        this.log(
+          `[Terminal] Ended command "${cmd}" (exitCode: ${e.exitCode}, captured chars: ${rawOutput.length})`,
+        );
+
+        const cleanOutput = stripAnsi(rawOutput);
+        const hasPython = containsPythonError(cleanOutput);
+        const hasJava = containsJavaError(cleanOutput);
 
         // Only check commands that failed (non-zero exit code) or produced recognized errors
         if (e.exitCode === 0 && !hasPython && !hasJava) {
           return;
         }
 
-        const cleanOutput = stripAnsi(rawOutput);
-
-        if (containsPythonError(cleanOutput)) {
+        if (hasPython) {
+          const errText = extractPythonErrorText(cleanOutput);
+          this.log(`[Terminal] Detected Python error: ${errText.slice(0, 80).replace(/\n/g, ' ')}`);
           this.onError({
             source: 'terminal',
-            errorText: extractPythonErrorText(cleanOutput),
+            errorText: errText,
           });
-        } else if (containsJavaError(cleanOutput)) {
+        } else if (hasJava) {
+          const errText = extractJavaErrorText(cleanOutput);
+          this.log(`[Terminal] Detected Java error: ${errText.slice(0, 80).replace(/\n/g, ' ')}`);
           this.onError({
             source: 'terminal',
-            errorText: extractJavaErrorText(cleanOutput),
+            errorText: errText,
           });
-        } else if (e.exitCode !== 0) {
+        } else if (e.exitCode !== 0 && e.exitCode !== undefined) {
           const generalError = extractGeneralErrorText(cleanOutput);
           if (generalError) {
+            this.log(`[Terminal] Detected general error: ${generalError.slice(0, 80).replace(/\n/g, ' ')}`);
             this.onError({
               source: 'terminal',
               errorText: generalError,
             });
           }
+        }
+      }),
+    );
+  }
+
+  // Debug / run sessions (Run Java, Debug Python, F5, etc.)
+
+  private listenToDebugSessions(): void {
+    const trackerFactory: vscode.DebugAdapterTrackerFactory = {
+      createDebugAdapterTracker: (session: vscode.DebugSession) => {
+        this.log(`[Debug] Tracker attached to session "${session.name}" (type: ${session.type})`);
+        const tracker = new MommyDebugTracker(
+          session,
+          this.onError,
+          this.log.bind(this),
+        );
+        this.activeDebugTrackers.set(session.id, tracker);
+        return tracker;
+      },
+    };
+
+    this.disposables.push(
+      vscode.debug.registerDebugAdapterTrackerFactory('*', trackerFactory),
+      vscode.debug.onDidTerminateDebugSession((session) => {
+        const tracker = this.activeDebugTrackers.get(session.id);
+        if (tracker) {
+          tracker.handleSessionEnd();
+          this.activeDebugTrackers.delete(session.id);
         }
       }),
     );

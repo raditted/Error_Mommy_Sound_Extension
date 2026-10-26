@@ -2,7 +2,7 @@
   "name": "mommy-error-asmr",
   "displayName": "Error Mommy Sound Extension",
   "description": "Plays soothing mommy ASMR voice when your code fails — powered by Fish Audio TTS",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "raditted",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -66,6 +66,10 @@
       {
         "command": "mommyErrorAsmr.clearCache",
         "title": "Mommy ASMR: Clear Audio Cache"
+      },
+      {
+        "command": "mommyErrorAsmr.showOutput",
+        "title": "Mommy ASMR: Show Output Logs"
       }
     ],
     "configuration": {
@@ -93,12 +97,14 @@
             "notebook",
             "task",
             "terminal",
+            "debug",
             "all"
           ],
           "enumDescriptions": [
             "Only trigger on notebook cell execution errors",
             "Only trigger on build task failures",
             "Only trigger on terminal output errors (e.g. python, java, javac)",
+            "Only trigger on debug/run session execution errors (e.g. F5, Run Java, Debug Python)",
             "Trigger on all error sources"
           ],
           "description": "Which execution errors should trigger the sound"

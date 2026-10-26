@@ -33,12 +33,19 @@ export class MommySidebarProvider
   ): void {
     this.view = webviewView;
 
+    const roots: vscode.Uri[] = [
+      vscode.Uri.joinPath(this.extensionUri, 'media'),
+      vscode.Uri.file(os.homedir()),
+    ];
+    if (process.platform !== 'win32') {
+      try {
+        roots.push(vscode.Uri.file('/'));
+      } catch {}
+    }
+
     webviewView.webview.options = {
       enableScripts: true,
-      localResourceRoots: [
-        vscode.Uri.joinPath(this.extensionUri, 'media'),
-        vscode.Uri.file('/'),
-      ],
+      localResourceRoots: roots,
     };
 
     // Restore the last-shown state, or show idle.

@@ -33,11 +33,37 @@ function stripEmotionTags(text: string): string {
 export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<void> {
+  const outputChannel = vscode.window.createOutputChannel('Mommy Error ASMR');
+  context.subscriptions.push(outputChannel);
+
+  const log = (msg: string): void => {
+    outputChannel.appendLine(`[${new Date().toLocaleTimeString()}] ${msg}`);
+  };
+
+  log('Activating Mommy Error ASMR extension...');
+
+  // Check terminal shell integration setting
+  const shellIntegrationConfig = vscode.workspace.getConfiguration('terminal.integrated.shellIntegration');
+  const isShellIntegrationEnabled = shellIntegrationConfig.get<boolean>('enabled', true);
+  if (!isShellIntegrationEnabled) {
+    log('Warning: terminal.integrated.shellIntegration.enabled is false!');
+    vscode.window.showWarningMessage(
+      'Mommy Error ASMR: Terminal shell integration is currently disabled in VS Code settings. Please enable it to detect errors in the terminal.',
+      'Enable Shell Integration',
+    ).then((selection) => {
+      if (selection === 'Enable Shell Integration') {
+        shellIntegrationConfig.update('enabled', true, vscode.ConfigurationTarget.Global);
+      }
+    });
+  }
+
   // Load message templates
   let scolds: ScoldMessages;
   try {
     scolds = loadScoldMessages(context.extensionPath);
+    log('Loaded scold templates successfully.');
   } catch (err) {
+    log(`Failed to load scolds.json: ${err}`);
     console.error('Mommy ASMR: Failed to load scolds.json', err);
     vscode.window.showErrorMessage(
       'Mommy Error ASMR: Failed to load message templates!',
@@ -63,10 +89,12 @@ export async function activate(
     errorEvent: ErrorEvent,
     isTest = false,
   ): Promise<void> => {
+    log(`Received error event from [${errorEvent.source}] (isTest: ${isTest})`);
     const settings = getExtensionSettings();
 
     // Respect enabled toggle (unless this is a manual test).
     if (!settings.enabled && !isTest) {
+      log('Mommy ASMR is disabled in settings, skipping.');
       return;
     }
 
@@ -79,6 +107,7 @@ export async function activate(
       settings.triggerSource !== 'all' &&
       settings.triggerSource !== errorEvent.source
     ) {
+      log(`Trigger source [${errorEvent.source}] ignored (configured: [${settings.triggerSource}]).`);
       return;
     }
 
@@ -87,6 +116,7 @@ export async function activate(
     const modelId = settings.fishAudioModelId;
 
     if (!apiKey || !modelId) {
+      log('Fish Audio API Key or Model ID is missing in settings.');
       const choice = await vscode.window.showWarningMessage(
         'Mommy Error ASMR: Please set your Fish Audio API Key and Model ID in Settings.',
         'Open Settings',
@@ -102,25 +132,32 @@ export async function activate(
 
     // Pick a category-appropriate message.
     const category = parseErrorCategory(errorEvent.errorText);
+    log(`Classified error category: "${category}"`);
+
     const messages =
       scolds[category] ??
       scolds['generic'] ?? ['Oh sweetie, something went wrong…'];
     const rawMessage = pickRandom(messages);
     const displayText = stripEmotionTags(rawMessage) || rawMessage;
+    log(`Selected scold: "${displayText}"`);
 
     try {
       // Cache lookup → TTS generation → playback.
-      // Pass rawMessage to Fish Audio so it processes emotion/prosody tags ([laughing], [angry], etc.)
       let audioPath = await cacheManager.get(rawMessage, modelId);
       if (!audioPath) {
+        log('Synthesizing speech via Fish Audio API...');
         const audioData = await synthesizeSpeech(rawMessage, {
           apiKey,
           modelId,
         });
         audioPath = await cacheManager.set(rawMessage, modelId, audioData);
+        log(`Cached TTS audio to: ${audioPath}`);
+      } else {
+        log(`Found cached audio: ${audioPath}`);
       }
 
       playAudioFile(audioPath);
+      log(`Audio playback started for: ${audioPath}`);
 
       // Show sidebar with character image (clean text for readable UI).
       if (settings.showImage) {
@@ -129,6 +166,7 @@ export async function activate(
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to generate audio';
+      log(`Error generating audio: ${message}`);
       console.error('Mommy ASMR: Failed to process error:', err);
       vscode.window.showWarningMessage(`Mommy Error ASMR: ${message}`);
     }
@@ -136,7 +174,7 @@ export async function activate(
 
   // Listeners & commands
 
-  const executionListener = new ExecutionListener(handleError);
+  const executionListener = new ExecutionListener(handleError, log);
   executionListener.activate();
 
   context.subscriptions.push(
@@ -153,6 +191,7 @@ export async function activate(
     }),
 
     vscode.commands.registerCommand('mommyErrorAsmr.testSound', () => {
+      log('Running manual test sound command...');
       handleError(
         {
           source: 'task',
@@ -165,12 +204,18 @@ export async function activate(
 
     vscode.commands.registerCommand('mommyErrorAsmr.clearCache', async () => {
       await cacheManager.clear();
+      log('Cache cleared.');
       vscode.window.showInformationMessage(
         'Mommy Error ASMR: Audio cache cleared! 🧹',
       );
     }),
+
+    vscode.commands.registerCommand('mommyErrorAsmr.showOutput', () => {
+      outputChannel.show();
+    }),
   );
 
+  log('Mommy Error ASMR is active! 💕');
   vscode.window.showInformationMessage('Mommy Error ASMR is active! 💕');
 }
 

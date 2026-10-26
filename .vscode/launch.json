@@ -5,9 +5,27 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
       "preLaunchTask": "npm: compile"
+    },
+    {
+      "type": "java",
+      "name": "TestSoundErrors",
+      "request": "launch",
+      "mainClass": "TestSoundErrors",
+      "projectName": "mommy-error-asmr_6d24096e"
+    },
+    {
+      "type": "java",
+      "name": "TestRuntimeError",
+      "request": "launch",
+      "mainClass": "TestRuntimeError",
+      "projectName": "mommy-error-asmr_6d24096e"
     }
   ]
 }

@@ -6,7 +6,7 @@
       "script": "compile",
       "group": "build",
       "label": "npm: compile",
-      "problemMatcher": ["$esbuild-watch"]
+      "problemMatcher": ["$esbuild"]
     },
     {
       "type": "npm",

@@ -16,7 +16,7 @@ export type ErrorCategory =
 // Error events
 
 /** Source that triggered the error detection. */
-export type ErrorSource = 'notebook' | 'task' | 'terminal';
+export type ErrorSource = 'notebook' | 'task' | 'terminal' | 'debug';
 
 /** Payload emitted when a code-execution error is detected. */
 export interface ErrorEvent {
