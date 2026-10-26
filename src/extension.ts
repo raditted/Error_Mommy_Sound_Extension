@@ -117,6 +117,8 @@ export async function activate(
 
   // Error handler
 
+  let lastTriggeredTime = 0;
+
   const handleError = async (
     errorEvent: ErrorEvent,
     isTest = false,
@@ -132,6 +134,22 @@ export async function activate(
         4000,
       );
       return;
+    }
+
+    // Check cooldown to prevent spam and overlapping audio (unless manual test).
+    const now = Date.now();
+    const cooldownMs = Math.max(0, settings.cooldownSeconds) * 1000;
+    if (!isTest && cooldownMs > 0 && now - lastTriggeredTime < cooldownMs) {
+      const remaining = (
+        (cooldownMs - (now - lastTriggeredTime)) /
+        1000
+      ).toFixed(1);
+      log(`Error ignored due to cooldown (${remaining}s remaining).`);
+      return;
+    }
+
+    if (!isTest) {
+      lastTriggeredTime = now;
     }
 
     // Stop any audio that's already playing.

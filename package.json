@@ -107,6 +107,12 @@
           ],
           "description": "Fish Audio TTS engine model"
         },
+        "mommyErrorAsmr.cooldownSeconds": {
+          "type": "number",
+          "default": 5,
+          "minimum": 0,
+          "description": "Minimum seconds between error sounds to prevent spam and overlapping audio (0 to disable)"
+        },
         "mommyErrorAsmr.triggerSource": {
           "type": "string",
           "default": "all",

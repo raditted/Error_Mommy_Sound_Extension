@@ -47,6 +47,7 @@ Error Mommy Sound Extension is a VS Code extension that reads your errors out lo
 | `mommyErrorAsmr.fishAudioApiKey`  | Your Fish Audio API key ([create one here](https://fish.audio/app/api-keys/))  | `""`                                   |
 | `mommyErrorAsmr.fishAudioModelId` | Voice model ID                                                                | `"60bd8f0f5bbc462a8fa1686dd81af336"`  |
 | `mommyErrorAsmr.ttsModel`         | Fish Audio engine model: `s2.1-pro-free`, `s2-pro`, `s2.1-pro`, or `s1`       | `"s2.1-pro-free"`                      |
+| `mommyErrorAsmr.cooldownSeconds`  | Minimum seconds between sounds to prevent spam and overlapping voice playback | `5`                                    |
 | `mommyErrorAsmr.triggerSource`    | Which sources to listen to: `notebook`, `task`, `terminal`, `debug`, or `all` | `"all"`                                |
 | `mommyErrorAsmr.characterImage`   | Path to a custom character image                                              | `""` (bundled default)                 |
 | `mommyErrorAsmr.showImage`        | Show the sidebar panel when an error occurs                                   | `true`                                 |

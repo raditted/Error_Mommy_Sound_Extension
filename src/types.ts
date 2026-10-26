@@ -1,5 +1,9 @@
 import * as vscode from 'vscode';
-import { DEFAULT_MODEL_ID, DEFAULT_TTS_MODEL } from './constants';
+import {
+  DEFAULT_MODEL_ID,
+  DEFAULT_TTS_MODEL,
+  DEFAULT_COOLDOWN_SECONDS,
+} from './constants';
 
 // Error categories
 
@@ -57,6 +61,7 @@ export interface ExtensionSettings {
   fishAudioApiKey: string;
   fishAudioModelId: string;
   ttsModel: string;
+  cooldownSeconds: number;
   triggerSource: TriggerSource;
   characterImage: string;
   showImage: boolean;
@@ -72,6 +77,10 @@ export function getExtensionSettings(): ExtensionSettings {
       config.get<string>('fishAudioModelId', DEFAULT_MODEL_ID) ||
       DEFAULT_MODEL_ID,
     ttsModel: config.get<string>('ttsModel', DEFAULT_TTS_MODEL),
+    cooldownSeconds: config.get<number>(
+      'cooldownSeconds',
+      DEFAULT_COOLDOWN_SECONDS,
+    ),
     triggerSource: config.get<TriggerSource>('triggerSource', 'all'),
     characterImage: config.get<string>('characterImage', ''),
     showImage: config.get<boolean>('showImage', true),
