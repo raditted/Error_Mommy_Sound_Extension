@@ -90,6 +90,23 @@
           "default": "60bd8f0f5bbc462a8fa1686dd81af336",
           "description": "Fish Audio voice model ID for the mommy voice (default: 60bd8f0f5bbc462a8fa1686dd81af336)"
         },
+        "mommyErrorAsmr.ttsModel": {
+          "type": "string",
+          "default": "s2.1-pro-free",
+          "enum": [
+            "s2.1-pro-free",
+            "s2-pro",
+            "s2.1-pro",
+            "s1"
+          ],
+          "enumDescriptions": [
+            "S2.1 Pro Free (Default, recommended for free tier)",
+            "S2 Pro (High quality pro model)",
+            "S2.1 Pro (Latest pro model)",
+            "S1 (Legacy model)"
+          ],
+          "description": "Fish Audio TTS engine model"
+        },
         "mommyErrorAsmr.triggerSource": {
           "type": "string",
           "default": "all",

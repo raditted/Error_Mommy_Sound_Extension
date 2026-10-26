@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DEFAULT_MODEL_ID } from './constants';
+import { DEFAULT_MODEL_ID, DEFAULT_TTS_MODEL } from './constants';
 
 // Error categories
 
@@ -31,10 +31,11 @@ export type ErrorCallback = (event: ErrorEvent, isTest?: boolean) => void;
 
 // Fish Audio
 
-/** Credentials needed by the Fish Audio TTS API. */
+/** Credentials and options needed by the Fish Audio TTS API. */
 export interface FishAudioConfig {
   apiKey: string;
   modelId: string;
+  ttsModel?: string;
 }
 
 // Scold messages
@@ -55,6 +56,7 @@ export interface ExtensionSettings {
   enabled: boolean;
   fishAudioApiKey: string;
   fishAudioModelId: string;
+  ttsModel: string;
   triggerSource: TriggerSource;
   characterImage: string;
   showImage: boolean;
@@ -69,6 +71,7 @@ export function getExtensionSettings(): ExtensionSettings {
     fishAudioModelId:
       config.get<string>('fishAudioModelId', DEFAULT_MODEL_ID) ||
       DEFAULT_MODEL_ID,
+    ttsModel: config.get<string>('ttsModel', DEFAULT_TTS_MODEL),
     triggerSource: config.get<TriggerSource>('triggerSource', 'all'),
     characterImage: config.get<string>('characterImage', ''),
     showImage: config.get<boolean>('showImage', true),

@@ -18,15 +18,24 @@ export class CacheManager {
   // Public API
 
   /** Return the cached file path, or `undefined` if not cached. */
-  async get(text: string, modelId: string): Promise<string | undefined> {
-    const uri = this.fileUri(text, modelId);
+  async get(
+    text: string,
+    modelId: string,
+    ttsModel?: string,
+  ): Promise<string | undefined> {
+    const uri = this.fileUri(text, modelId, ttsModel);
     return (await this.exists(uri)) ? uri.fsPath : undefined;
   }
 
   /** Write audio data to the cache and return the file path. */
-  async set(text: string, modelId: string, audioData: Buffer): Promise<string> {
+  async set(
+    text: string,
+    modelId: string,
+    audioData: Buffer,
+    ttsModel?: string,
+  ): Promise<string> {
     await this.ensureCacheDir();
-    const uri = this.fileUri(text, modelId);
+    const uri = this.fileUri(text, modelId, ttsModel);
 
     const bytes = new Uint8Array(
       audioData.buffer,
@@ -52,10 +61,15 @@ export class CacheManager {
 
   // Internals
 
-  private fileUri(text: string, modelId: string): vscode.Uri {
+  private fileUri(
+    text: string,
+    modelId: string,
+    ttsModel?: string,
+  ): vscode.Uri {
+    const key = ttsModel ? `${text}::${modelId}::${ttsModel}` : `${text}::${modelId}`;
     const hash = crypto
       .createHash('md5')
-      .update(`${text}::${modelId}`)
+      .update(key)
       .digest('hex');
     return vscode.Uri.joinPath(this.cacheDir, `${hash}.mp3`);
   }

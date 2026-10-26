@@ -43,7 +43,7 @@ export async function synthesizeSpeech(
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
-      model: FISH_AUDIO_MODEL,
+      model: config.ttsModel || FISH_AUDIO_MODEL,
     },
     body: JSON.stringify({
       text,

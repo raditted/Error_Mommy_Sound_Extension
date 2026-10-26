@@ -4,8 +4,9 @@ export const CONFIG_SECTION = 'mommyErrorAsmr';
 /** Fish Audio API base URL. */
 export const FISH_AUDIO_API_URL = 'https://api.fish.audio/v1';
 
-/** Fish Audio TTS model identifier. */
-export const FISH_AUDIO_MODEL = 's2.1-pro-free';
+/** Fish Audio TTS model identifier (default). */
+export const DEFAULT_TTS_MODEL = 's2.1-pro-free';
+export const FISH_AUDIO_MODEL = DEFAULT_TTS_MODEL;
 
 /** Default Fish Audio voice model ID (Mommy voice). */
 export const DEFAULT_MODEL_ID = '60bd8f0f5bbc462a8fa1686dd81af336';

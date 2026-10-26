@@ -184,14 +184,21 @@ export async function activate(
 
     try {
       // Cache lookup → TTS generation → playback.
-      let audioPath = await cacheManager.get(rawMessage, modelId);
+      const ttsModel = settings.ttsModel;
+      let audioPath = await cacheManager.get(rawMessage, modelId, ttsModel);
       if (!audioPath) {
-        log('Synthesizing speech via Fish Audio API...');
+        log(`Synthesizing speech via Fish Audio API (model: ${ttsModel})...`);
         const audioData = await synthesizeSpeech(rawMessage, {
           apiKey,
           modelId,
+          ttsModel,
         });
-        audioPath = await cacheManager.set(rawMessage, modelId, audioData);
+        audioPath = await cacheManager.set(
+          rawMessage,
+          modelId,
+          audioData,
+          ttsModel,
+        );
         log(`Cached TTS audio to: ${audioPath}`);
       } else {
         log(`Found cached audio: ${audioPath}`);
