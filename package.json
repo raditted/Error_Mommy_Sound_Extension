@@ -8,8 +8,12 @@
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/raditted/mommy-error-asmr"
+    "url": "https://github.com/raditted/Error_Mommy_Sound_Extension.git"
   },
+  "bugs": {
+    "url": "https://github.com/raditted/Error_Mommy_Sound_Extension/issues"
+  },
+  "homepage": "https://github.com/raditted/Error_Mommy_Sound_Extension#readme",
   "engines": {
     "vscode": "^1.93.0"
   },
