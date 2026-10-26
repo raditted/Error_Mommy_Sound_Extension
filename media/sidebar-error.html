@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mommy Says</title>
+  <style>
+    body {
+      background: var(--vscode-sideBar-background);
+      color: var(--vscode-sideBar-foreground, var(--vscode-editor-foreground));
+      font-family: var(--vscode-font-family);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 12px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 4px 12px rgba(255, 105, 180, 0.15); }
+      50% { box-shadow: 0 4px 20px rgba(255, 105, 180, 0.35); }
+    }
+
+    .container {
+      animation: fadeIn 0.6s ease-out forwards;
+      width: 100%;
+    }
+
+    .character-image {
+      width: 100%;
+      max-width: 220px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(255, 105, 180, 0.15);
+      margin-bottom: 14px;
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    .message {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.15em;
+      color: #ff85a2;
+      margin-bottom: 14px;
+      line-height: 1.4;
+      font-style: italic;
+      padding: 0 4px;
+    }
+
+    .error-details {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.8em;
+      background-color: var(--vscode-editor-inactiveSelectionBackground);
+      padding: 10px;
+      border-radius: 6px;
+      text-align: left;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 200px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-left: 3px solid #ff85a2;
+      color: var(--vscode-editor-foreground);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="{{IMAGE_URI}}" class="character-image" alt="Mommy Character" />
+    <div class="message">"{{MESSAGE}}"</div>
+    <div class="error-details">{{ERROR_DETAILS}}</div>
+  </div>
+</body>
+</html>
