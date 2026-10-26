@@ -2,7 +2,12 @@
 
 All notable changes to the **Error Mommy Sound Extension** will be documented in this file.
 
-## [0.1.0] — Unreleased
+## [0.1.1]
+
+### Changed
+- Updated extension marketplace icon to pixel heart.
+
+## [0.1.0]
 
 ### Added
 - Smart error categorization (syntax, null-reference, type, import, key, compilation, runtime, generic).
