@@ -42,6 +42,37 @@ export async function activate(
 
   log('Activating Mommy Error ASMR extension...');
 
+  // Status Bar Indicator
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100,
+  );
+  statusBarItem.command = 'mommyErrorAsmr.toggle';
+
+  const updateStatusBar = (): void => {
+    const isEnabled = vscode.workspace
+      .getConfiguration('mommyErrorAsmr')
+      .get<boolean>('enabled', true);
+    if (isEnabled) {
+      statusBarItem.text = '$(heart) Mommy ASMR';
+      statusBarItem.tooltip = 'Mommy Error ASMR is active 💕 (Click to disable)';
+    } else {
+      statusBarItem.text = '$(heart-broken) Mommy ASMR (Off)';
+      statusBarItem.tooltip = 'Mommy Error ASMR is disabled 💔 (Click to enable)';
+    }
+    statusBarItem.show();
+  };
+
+  updateStatusBar();
+  context.subscriptions.push(
+    statusBarItem,
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('mommyErrorAsmr.enabled')) {
+        updateStatusBar();
+      }
+    }),
+  );
+
   // Check terminal shell integration setting
   const shellIntegrationConfig = vscode.workspace.getConfiguration('terminal.integrated.shellIntegration');
   const isShellIntegrationEnabled = shellIntegrationConfig.get<boolean>('enabled', true);
@@ -95,6 +126,10 @@ export async function activate(
     // Respect enabled toggle (unless this is a manual test).
     if (!settings.enabled && !isTest) {
       log('Mommy ASMR is disabled in settings, skipping.');
+      vscode.window.setStatusBarMessage(
+        '$(heart-broken) Mommy ASMR is disabled (Click status bar to enable)',
+        4000,
+      );
       return;
     }
 
@@ -184,7 +219,8 @@ export async function activate(
     vscode.commands.registerCommand('mommyErrorAsmr.toggle', () => {
       const config = vscode.workspace.getConfiguration('mommyErrorAsmr');
       const current = config.get<boolean>('enabled', true);
-      config.update('enabled', !current, true);
+      config.update('enabled', !current, vscode.ConfigurationTarget.Global);
+      updateStatusBar();
       vscode.window.showInformationMessage(
         `Mommy Error ASMR is now ${!current ? 'active 💕' : 'disabled 💔'}`,
       );
@@ -215,8 +251,26 @@ export async function activate(
     }),
   );
 
-  log('Mommy Error ASMR is active! 💕');
-  vscode.window.showInformationMessage('Mommy Error ASMR is active! 💕');
+  const initialSettings = getExtensionSettings();
+  if (!initialSettings.enabled) {
+    log('Mommy Error ASMR is currently DISABLED in settings.');
+    vscode.window
+      .showWarningMessage(
+        'Mommy Error ASMR is currently disabled in your settings.',
+        'Enable Now 💕',
+      )
+      .then((selection) => {
+        if (selection === 'Enable Now 💕') {
+          vscode.workspace
+            .getConfiguration('mommyErrorAsmr')
+            .update('enabled', true, vscode.ConfigurationTarget.Global);
+          updateStatusBar();
+        }
+      });
+  } else {
+    log('Mommy Error ASMR is active! 💕');
+    vscode.window.showInformationMessage('Mommy Error ASMR is active! 💕');
+  }
 }
 
 // Deactivation

@@ -5,9 +5,10 @@ import { MAX_JAVA_STACK_LINES } from './constants';
 
 // ANSI stripping
 
-/** Remove all ANSI escape sequences (colors, cursor moves, etc.). */
+/** Remove all ANSI escape sequences (colors, cursor moves, shell integration OSC markers, etc.). */
 export function stripAnsi(text: string): string {
   return text
+    .replace(/\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g, '')
     .replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '')
     .replace(/\u001b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '')
     .replace(/\\u001b\[[0-9;]*[a-zA-Z]/gi, '')
