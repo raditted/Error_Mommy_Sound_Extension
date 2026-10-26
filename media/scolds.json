@@ -1,0 +1,58 @@
+{
+    "syntax-error": [
+        "[angry] A syntax error again? [pause] Sweetie… did you [emphasis] really forget how to close your quotes and brackets? [sighing] Mommy's not proud of this.",
+        "[breathy] Nice try sweetie, [pause] but the computer can't read your mind when you leave out punctuation. [chuckling] [laughing]",
+        "[soft] Take a deep breath. [pause] Check your indentations and missing colons, okay? [whispering] You can do better than this. [clear throat]",
+        "[sighing] You left an open bracket hanging again… [long pause] let mommy help you clean that up. [soft] [laughing]",
+        "[embarrassed] Another unexpected token. [pause] Just double-check your syntax before hitting run, sweetie. [emphasis] Seriously."
+    ],
+    "null-reference": [
+        "[angry] Trying to access something that doesn't exist? [pause] Oh sweetie… [sighing] Mommy expected better from you.",
+        "[sighing] It's null or undefined. [pause] You can't read properties of empty space, sweetie. [whispering] Come on… [laughing]",
+        "[soft] Don't worry, even experienced devs forget null checks. [pause] Add a safety check for [whispering] mommy, okay?",
+        "[breathy] You asked for data that was never initialized. [pause] Magic isn't real in Python, sweetie. [chuckling] [laughing]",
+        "[angry] Null pointer exception! [pause] Make sure the object is actually instantiated first. [emphasis] Please."
+    ],
+    "type-error": [
+        "[embarrassed] You tried to combine two completely incompatible types, sweetie. [pause] Really? [laughing]",
+        "[angry] You can't add strings and integers like that. [pause] Pay attention to your data types. [sighing] Mommy's disappointed.",
+        "[breathy] That function expects a completely different type. [pause] Did you even read the docs, sweetie? [chuckling] [laughing]",
+        "[soft] Type mismatches happen to everyone. [pause] Just convert it to the right type and try again. [whispering] You've got this. [laughing]",
+        "[embarrassed] A type error… [pause] Look at the function arguments again, okay? [emphasis] Slowly this time. [laughing]"
+    ],
+    "import-error": [
+        "[breathy] You're trying to use a package you never installed or imported, sweetie. [pause] Classic. [sighing]",
+        "[angry] Module not found! [pause] Did you spell the package name wrong… [sighing] again? Mommy's not impressed.",
+        "[sighing] Mommy can't find that module anywhere in your environment. [long pause] What are we gonna do with you… [clear throat]]",
+        "[soft] Double-check your import statement and virtual environment, sweetie. [whispering] Take your time.[sighing]",
+        "[angry] Cannot resolve symbol. [pause] Make sure the package is installed properly. [emphasis] Now."
+    ],
+    "key-error": [
+        "[breathy] That key does not exist in the dictionary, sweetie. [pause] Shocking, right? [laughing]",
+        "[embarrassed] You spelled the key name wrong. [pause] Print the keys first next time. [chuckling]",
+        "[sighing] A key error! [pause] The dictionary doesn't have what you're asking for. [emphasis] Obviously.",
+        "[soft] You're asking for data you never loaded into the dictionary. [pause] Again. [laughing]",
+        "[whispering] Oopsie, sweetie![pause]. Are you nervous around Mommy? [smirking]"
+    ],
+    "compilation-error": [
+        "[angry] Oh mommy is not happy with your code at all. [pause] Not even a little. [clear throat]",
+        "[sighing] Compilation failed. [pause] Fix the red wavy lines before running again[smirking], [pause] sweetie.",
+        "[angry] Look at the error output above, sweetie. [pause] Something failed to build.[clear throat] And mommy's not proud of this mess.",
+        "[soft] Don't stress out. [pause] Compiler errors just mean you need to clean up a few mistakes [long pause]. [laughing] Good luck, mommy's boy.",
+        "[breathy] You gave the compiler something it can't digest. [pause] Read the build logs! [chuckling]"
+    ],
+    "runtime-error": [
+        "[sighing] It crashed while running. [pause] what did you feed into this function, sweetie? [chuckling]",
+        "[angry] Unhandled exception! [pause] Always handle edge cases… [sighing] Mommy expected more from you.",
+        "[angry] The program hit a wall at runtime. [pause] Trace back the logic step by step. [emphasis] Carefully.",
+        "[soft] It's alright, runtime bugs happen. [pause] Let me stay right here while you trace the stack.",
+        "[breathy] Boom! An exception popped up. [pause] Time to debug this mess. [chuckling]"
+    ],
+    "generic": [
+        "[soft] Oh sweetie, something went wrong… [pause] but mommy is right here with you. [smirking]",
+        "[breathy] Don't get discouraged! [pause] Take a short break, sip some water, and try again. [chuckling]",
+        "[sighing] Another little error… [pause] take it slow and check your logic line by line. [sigh]",
+        "[breathy] Oopsie! Something broke, [pause] but I know you'll fix it… eventually. [sighing]",
+        "[embarrassed] Code failed again, huh? [pause] Let's take a look together. [whispering] Come on. [laughing]"
+    ]
+}
