@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+dist/
+node_modules/
+*.vsix
+out/
+test_*.js
+test_api/
+test_java/
